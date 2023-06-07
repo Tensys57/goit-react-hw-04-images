@@ -20,21 +20,24 @@ export const App = () => {
   useEffect(() => {
     if (!query) return;
     setIsLoading(true);
-    getPhotos(query, page)
-      .then(({ hits, totalHits }) => {
-        if (!hits.length) {
-          setIsEmpty(true);
-          return;
-        }
-        setHits(prevState => [...prevState, ...hits]);
-        setShowBtn(page < Math.ceil(totalHits / 12));
-      })
-      .catch(error => {
-        setError(error.message);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    const fetchHits = async () => {
+      await getPhotos(query, page)
+        .then(({ hits, totalHits }) => {
+          if (!hits.length) {
+            setIsEmpty(true);
+            return;
+          }
+          setHits(prevState => [...prevState, ...hits]);
+          setShowBtn(page < Math.ceil(totalHits / 12));
+        })
+        .catch(error => {
+          setError(error.message);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    };
+    fetchHits();
   }, [query, page]);
 
   const onSubmit = Newquery => {
@@ -42,7 +45,7 @@ export const App = () => {
       return alert('Already shown');
     }
 
-    setQuery(query);
+    setQuery(Newquery);
     setPage(1);
     setHits([]);
     setShowBtn(false);
